@@ -20,39 +20,39 @@ package com.buildingsmart.tech.ifcowl.vo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TypeVO implements Serializable {
     private static final long serialVersionUID = -3366648676376786356L;
     private String name;
     private String primarytype;
-    private List<String> selectEntities = new LinkedList<>();
-    private List<String> enumEntities = new LinkedList<>();
+    private List<String> selectEntities;
+    private List<String> enumEntities;
     private List<TypeVO> parentSelect;
     private int[] listCardinalities = new int[2];
-    private static List<TypeVO> listOfTypes = new ArrayList<>();
+    private static final ConcurrentHashMap<String, TypeVO> types = new ConcurrentHashMap<>(100);
+    private static final Set<String> typeNamesLowerCase = ConcurrentHashMap.newKeySet();
 
     public TypeVO(String name) {
         super();
         this.name = name;
         this.primarytype = name;
-        listOfTypes.add(this);
+        types.put(name, this);
+        typeNamesLowerCase.add(name.toLowerCase());
     }
 
     public TypeVO(String name, String primarytype) {
         super();
         this.name = name;
         this.primarytype = primarytype;
-        listOfTypes.add(this);
+        types.put(name, this);
+        typeNamesLowerCase.add(name.toLowerCase());
     }
 
     public static TypeVO getTypeVO(String typeName) {
-        for (TypeVO t : listOfTypes) {
-            if (t.getName().equalsIgnoreCase(typeName))
-                return t;
-        }
-        return null;
+        return types.computeIfAbsent(typeName, TypeVO::new);
     }
 
     public String getName() {
@@ -64,7 +64,14 @@ public class TypeVO implements Serializable {
     }
 
     public List<String> getSelectEntities() {
-        return selectEntities;
+        if (this.selectEntities == null){
+            synchronized (this){
+                if (this.selectEntities == null){
+                    this.selectEntities = new ArrayList<>();
+                }
+            }
+        }
+        return this.selectEntities;
     }
 
     public void setSelectEntities(List<String> selectEntities) {
@@ -72,6 +79,13 @@ public class TypeVO implements Serializable {
     }
 
     public List<TypeVO> getParentSelectTypes() {
+        if (this.parentSelect == null){
+            synchronized (this){
+                if (this.parentSelect == null){
+                    this.parentSelect = new ArrayList<>();
+                }
+            }
+        }
         return parentSelect;
     }
 
@@ -90,6 +104,13 @@ public class TypeVO implements Serializable {
     }
 
     public List<String> getEnumEntities() {
+        if (this.enumEntities == null){
+            synchronized (this){
+                if (this.enumEntities == null){
+                    this.enumEntities = new ArrayList<>();
+                }
+            }
+        }
         return enumEntities;
     }
 
@@ -106,11 +127,7 @@ public class TypeVO implements Serializable {
     }
 
     public static boolean checkIfType(String ptype) {
-        for (TypeVO pt : listOfTypes) {
-            if (pt.name.equalsIgnoreCase(ptype))
-                return true;
-        }
-        return false;
+        return typeNamesLowerCase.contains(ptype.toLowerCase());
     }
 
     @Override

@@ -18,18 +18,15 @@ limitations under the License.
  
  package com.buildingsmart.tech.ifcowl.vo;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IFCVO {
 
     private Long lineNum;
     private String fullLineAfterNum;
     private String name = null;
-    private LinkedList<Object> list = new LinkedList<>();
-    private Map<String, LinkedList<IFCVO>> inversePointerSets = new HashMap<>();
+    private List<Object> list = null;
+    private Map<String, List<IFCVO>> inversePointerSets = null;
 
     public IFCVO() {
         //default constructor
@@ -60,18 +57,32 @@ public class IFCVO {
     }
 
     public List<Object> getObjectList() {
+        if (list == null){
+            synchronized (this){
+                if (list == null) {
+                    this.list = new ArrayList<>();
+                }
+            }
+        }
         return list;
     }
 
     public void setList(List<Object> list) {
-        this.list = (LinkedList<Object>) list;
+        this.list = list;
     }
 
-    public Map<String, LinkedList<IFCVO>> getInversePointerSets() {
+    public Map<String, List<IFCVO>> getInversePointerSets() {
+        if (inversePointerSets == null){
+            synchronized (this){
+                if (inversePointerSets == null){
+                    this.inversePointerSets = new HashMap<>();
+                }
+            }
+        }
         return inversePointerSets;
     }
 
-    public void setInversePointerSets(Map<String, LinkedList<IFCVO>> inversePointerSets) {
+    public void setInversePointerSets(Map<String, List<IFCVO>> inversePointerSets) {
         this.inversePointerSets = inversePointerSets;
     }
 }

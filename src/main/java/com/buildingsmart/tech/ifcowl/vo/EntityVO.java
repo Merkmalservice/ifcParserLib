@@ -21,24 +21,24 @@ limitations under the License.
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityVO implements Serializable {
     private static final long serialVersionUID = -3172893316956350157L;
     private String name;
-    private List<AttributeVO> attributes = new LinkedList<>();
-    private List<InverseVO> inverses = new LinkedList<>();
+    private List<AttributeVO> attributes;
+    private List<InverseVO> inverses;
 
-    private List<AttributeVO> derivedAttributeList = new LinkedList<>();
-    private List<InverseVO> derivedInverseList = new LinkedList<>();
+    private List<AttributeVO> derivedAttributeList;
+    private List<InverseVO> derivedInverseList;
 
     private String superclass;
     private boolean abstractsuperclass = false;
     private List<TypeVO> parentSelect;
-    private Set<String> subClassList = new HashSet<>();
-    private static List<EntityVO> listOfEntities = new ArrayList<>();
+    private Set<String> subClassList;
+    private static ConcurrentHashMap<String, EntityVO> entities = new ConcurrentHashMap<>(100);
 
     public EntityVO() {
         //default constructor
@@ -47,18 +47,21 @@ public class EntityVO implements Serializable {
     public EntityVO(String name) {
         super();
         this.name = name;
-        listOfEntities.add(this);
+        entities.put(name.toLowerCase(), this);
     }
 
     public static EntityVO getEntityVO(String entityName) {
-        for (EntityVO e : listOfEntities) {
-            if (e.getName().equalsIgnoreCase(entityName))
-                return e;
-        }
-        return null;
+        return entities.computeIfAbsent(entityName.toLowerCase(), EntityVO::new);
     }
 
     public List<InverseVO> getDerivedInverseList() {
+        if (this.derivedInverseList == null){
+            synchronized (this){
+                if (this.derivedInverseList == null){
+                    this.derivedInverseList = new ArrayList<>();
+                }
+            }
+        }
         return derivedInverseList;
     }
 
@@ -67,6 +70,13 @@ public class EntityVO implements Serializable {
     }
 
     public List<InverseVO> getInverses() {
+        if (this.inverses == null){
+            synchronized (this){
+                if (this.inverses == null){
+                    this.inverses = new ArrayList<>();
+                }
+            }
+        }
         return inverses;
     }
 
@@ -75,6 +85,13 @@ public class EntityVO implements Serializable {
     }
 
     public List<AttributeVO> getDerivedAttributeList() {
+        if (this.derivedAttributeList == null){
+            synchronized (this){
+                if (this.derivedAttributeList == null){
+                    this.derivedAttributeList = new ArrayList<>();
+                }
+            }
+        }
         return derivedAttributeList;
     }
 
@@ -83,6 +100,13 @@ public class EntityVO implements Serializable {
     }
 
     public List<AttributeVO> getAttributes() {
+        if (this.attributes == null){
+            synchronized (this){
+                if (this.attributes == null){
+                    this.attributes = new ArrayList<>();
+                }
+            }
+        }
         return attributes;
     }
 
@@ -99,6 +123,13 @@ public class EntityVO implements Serializable {
     }
 
     public List<TypeVO> getParentSelectTypes() {
+        if (this.parentSelect == null){
+            synchronized (this){
+                if (this.parentSelect == null){
+                    this.parentSelect = new ArrayList<>();
+                }
+            }
+        }
         return parentSelect;
     }
 
@@ -133,7 +164,15 @@ public class EntityVO implements Serializable {
     /**
      * @return the subClassList
      */
-    public Set<String> getSubClassList() {
+    public Set<String> getSubClassList()
+    {
+        if (this.subClassList == null){
+            synchronized (this){
+                if (this.subClassList == null){
+                    this.subClassList = new HashSet<>();
+                }
+            }
+        }
         return subClassList;
     }
 
