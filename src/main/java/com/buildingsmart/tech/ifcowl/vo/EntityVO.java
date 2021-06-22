@@ -40,18 +40,18 @@ public class EntityVO implements Serializable {
     private Set<String> subClassList;
     private static ConcurrentHashMap<String, EntityVO> entities = new ConcurrentHashMap<>(100);
 
-    private EntityVO() {
+    public EntityVO() {
         //default constructor
     }
 
-    private EntityVO(String name) {
+    public EntityVO(String name) {
         super();
         this.name = name;
         entities.put(name.toLowerCase(), this);
     }
 
     public static EntityVO getEntityVO(String entityName) {
-        return entities.computeIfAbsent(entityName.toLowerCase(), name -> new EntityVO(name));
+        return entities.computeIfAbsent(entityName.toLowerCase(), EntityVO::new);
     }
 
     public List<InverseVO> getDerivedInverseList() {

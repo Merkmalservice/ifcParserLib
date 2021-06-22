@@ -35,7 +35,7 @@ public class TypeVO implements Serializable {
     private static final ConcurrentHashMap<String, TypeVO> types = new ConcurrentHashMap<>(100);
     private static final Set<String> typeNamesLowerCase = ConcurrentHashMap.newKeySet();
 
-    private TypeVO(String name) {
+    public TypeVO(String name) {
         super();
         this.name = name;
         this.primarytype = name;
@@ -43,7 +43,7 @@ public class TypeVO implements Serializable {
         typeNamesLowerCase.add(name.toLowerCase());
     }
 
-    private TypeVO(String name, String primarytype) {
+    public TypeVO(String name, String primarytype) {
         super();
         this.name = name;
         this.primarytype = primarytype;
@@ -52,7 +52,7 @@ public class TypeVO implements Serializable {
     }
 
     public static TypeVO getTypeVO(String typeName) {
-        return types.computeIfAbsent(typeName, name -> new TypeVO(name));
+        return types.computeIfAbsent(typeName, TypeVO::new);
     }
 
     public String getName() {
