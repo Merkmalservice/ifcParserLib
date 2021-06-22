@@ -28,9 +28,9 @@ public class TypeVO implements Serializable {
     private static final long serialVersionUID = -3366648676376786356L;
     private String name;
     private String primarytype;
-    private List<String> selectEntities = null;
-    private List<String> enumEntities = null;
-    private List<TypeVO> parentSelect = null;
+    private List<String> selectEntities;
+    private List<String> enumEntities;
+    private List<TypeVO> parentSelect;
     private int[] listCardinalities = new int[2];
     private static final ConcurrentHashMap<String, TypeVO> types = new ConcurrentHashMap<>(100);
     private static final Set<String> typeNamesLowerCase = ConcurrentHashMap.newKeySet();
